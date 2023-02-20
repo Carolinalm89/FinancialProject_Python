@@ -1,31 +1,26 @@
-
 # -*- coding: utf-8 -*-
 """
-Created on Tue Oct  4 08:19:12 2022
+Created on Tue Nov 15 16:06:44 2022
 
 @author: londoncm
 """
-# Import libraries
-import os
 import pandas as pd
-from tkinter import Tk, Label, Button, Entry, Frame, END
+import os
+from tkinter import *
+import tkinter.messagebox
 
-
-# Change path
-current_path = os.getcwd()
-current_path
 
 # Adding the path where is the data located
 
-os.chdir(r'C:\Users\LONDONCM\Documents\Financial_Report') 
+os.chdir(r'Z:\Python\Test') 
 
 os.listdir()
 
 
-# --------------Import Main Data (SAP)-------------------------
+# --------------Import Main Data (Excel)-------------------------
 
-df1 = pd.read_excel('FinancialData2021_22_Python_interface.xlsx',
-                    sheet_name='Data_SAP_Sept_2022-23', dtype=object)
+df1 = pd.read_excel('FinancialData2021_23_Python_V2.xlsx',
+                    sheet_name='Data_example', dtype=object) # change the sheet name every month
 df1.head()
 
 
@@ -42,8 +37,14 @@ df1['Profit Center'].fillna('NA', inplace=True)
 
 df1['WBS'].fillna('0', inplace=True)
 
+df1['Purchasing document'].fillna('NA', inplace=True)
+
+df1['Vendor'].fillna('NA', inplace=True)
+
 df1['Cost Center'] = df1['Cost Center'].values.astype('str')
 df1['Account Number'] = df1['Account Number'].values.astype('str')
+df1['WBS'] = df1['WBS'].values.astype('str')
+
 
 # Remove colummns we do not use in Main Data
 
@@ -55,8 +56,8 @@ df1 = df1.drop([
     'In transaction currency',
     'Curr. Key Trans. Curr.',
     'Text',
-    'Purchasing document',
-    'Vendor',
+    #'Purchasing document',
+    #'Vendor',
     'User Name',
     ], axis=1)
 
@@ -111,7 +112,7 @@ df1 = df1.apply(code, axis=1)
 df1['Code'] = df1['Code'].values.astype('str')
 
 # ---------Import Mapping1 data. Mapping 1 contain departments and sectors.---------------------------
-df2 = pd.read_excel('FinancialData2021_22_Python_interface.xlsx',
+df2 = pd.read_excel('FinancialData2021_23_Python_V2.xlsx',
                     sheet_name='Mapping1', dtype=object)
 
 df2.head()
@@ -133,99 +134,178 @@ df_falses = df1[(df1['Check']=='False')]
 df_falses= df_falses['Code'].drop_duplicates()
 print(df_falses.to_markdown())
 
-# ----------------Enter missing data in Mapping1-------------------------------
 
 
 if 'False' in df1['Check'].tolist():
+
+
+    window = Tk()
+    window.geometry('400x335')
+    window.resizable(0, 0)
+    window.title('Enter Missing Data')
     
-    windows = Tk()
-    windows.config(bg='white')
-    windows.geometry('650x250')
-    windows.resizable(0, 0)
-    windows.title('There are missing data in Mapping 1. Please enter the missing data')
+    
+    subframe = Frame(window, bg='#24a7b1')
+    subframe.grid(column=0, row=0, sticky='nsew')
+     
+    subframe2 = Frame(window, bg='#24a7b1')
+    subframe2.grid(column=0, row=1, sticky='nsew')
+    
+    
+    ### --- code Input
+    
+    label00 = Label(subframe, text = 'Code', font = ('Arial Bold', 12), bg = 'white', fg = 'black').grid(column=0, row=0,
+             sticky = 'ew', padx = 5, pady = 5)
+    code_entry = Entry(subframe,width=20, font=('Arial', 12))
+    code_entry.grid(row = 0, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    ### --- sector list Input
+    label20 = Label(subframe, text = 'Sector', font = ('Arial Bold', 12), bg = 'white', fg = 'black')
+    label20.grid(row = 2, column = 0, sticky = 'ew', padx = 5, pady = 5)
+    
+    sector_list_series = ['Select Sector','Research Center','Research Funding', 'Research Office', \
+                    'Core Lab & RI', 'President Initiative']
+    
+    
+    sector_list_var = StringVar(window)
+    sector_list_var.set(sector_list_series[0])
+    sector_list_entry = OptionMenu(subframe, sector_list_var, *sector_list_series)
+    sector_list_entry.config(width=40)
+    sector_list_entry.grid(row = 2, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    ### --- department list input
+    label30 = Label(subframe, text = 'Department', font = ('Arial Bold', 12), bg = 'white', fg = 'black')
+    label30.grid(row = 3, column = 0, sticky = 'ew', padx = 5, pady = 5)
+    
+    department_List_series = [
+        'Select Department',
+        'RC Advance Membranes',
+        'RC ANPERC',
+        'RC Catalysis',
+        'RC Clean Combustion',
+        'RC Computational Bioscience',
+        'RC Desert Agriculture',
+        'RC Extreme Computing',
+        'RC RC3',
+        'RC Red Sea',
+        'RC Solar',
+        'RC VCC',
+        'RC Water Desalination',
+        'GCR',
+        'URF',
+        'External Research',
+        'Baseline',
+        'Discretionary',
+        'CCF',
+        'Center Partnership',
+        'Res Partnership',
+        'Research Capital',
+        'KRO',
+        'Office of A-VPR & COO',
+        'Office Of the VPR',
+        'Research Funding and Services (RFS)',
+        'Research Support and Valorization',
+        'Research Translation and Partnerships',
+        'VPR Projects',
+        'Analytical Chemistry Core Lab',
+        'Animal Resources Facility Core Lab',
+        'Bioscience Core Lab',
+        'Central Workshop Core Lab',
+        'CLRI Projects',
+        'CLRI Research Park',
+        'Coastal & Marine Resources Core Lab',
+        'Core Labs Operation & Support',
+        'Core Res Park / Grants Projects',
+        'Greenhouse Core Lab',
+        'Imaging & Characterization Core Lab',
+        'LEM',
+        'Nanofabrication Core Lab',
+        'New Energy Oasis Facility Core Lab',
+        'Radiation Labelling Facility Core Lab',
+        'Supercomputing Core Lab',
+        'Visualization Core Lab',
+        'Artifical Interlligence Initiative',
+        'Central Node - Researchers',
+        'Circular Carbin',
+        'Climate and Livability Initiative',
+        'Core Lab-Cloud Bursting',
+        'G20/S20 Support Office',
+        'Impact Acceleration',
+        'Metagenomic RS Impact Focused - Carlos/PF',
+        'Near Term Grant Challenge',
+        'NEOM CoE',
+        'Smart Health - Operation',
+        'Smart Health Initiative',
+        'Translational Grant',
+        'VPR Strategic Engagements',
+        'Reefscape Restoration Initiative - Shushah funded'
+        ]
+    
+    department_List_var = StringVar(window)
+    department_List_var.set(department_List_series[0])
+    department_list_entry = OptionMenu(subframe, department_List_var, *department_List_series)
+    department_list_entry.config(width=40)
+    department_list_entry.grid(row = 3, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
     
     (code1, department1, sector1) = ([], [], [])
     
-    
-    def agregar_datos():
+    def add_data():
         global code1, department1, sector1
     
-        code1.append(enter_code.get())
-        department1.append(enter_department.get())
-        sector1.append(enter_sector.get())
+        code1.append(code_entry.get())
+        department1.append(department_List_var.get())
+        sector1.append(sector_list_var.get())
     
-        enter_code.delete(0, END)
-        enter_department.delete(0, END)
-        enter_sector.delete(0, END)
-    
+        code_entry.delete(0, END)
+        sector_list_var.set(sector_list_series[0])
+        department_List_var.set(department_List_series[0])
     
     def save_data():
         global code1, department1, sector1
     
         data = {'Code': code1, 'Department': department1, 'Sector': sector1}
-        name_excel = str(file_name.get() + '.xlsx')
+        name_excel = 'new_mapping1' + '.xlsx'
         df = pd.DataFrame(data, columns=['Code', 'Department', 'Sector'])
         df.to_excel(name_excel, index=False)
-        file_name.delete(0, END)
-    
-    
-    frame1 = Frame(windows, bg='gray15')
-    frame1.grid(column=0, row=0, sticky='nsew')
-    frame2 = Frame(windows, bg='gray16')
-    frame2.grid(column=1, row=0, sticky='nsew')
-    
-    Code = Label(frame1, text='Code', width=16).grid(column=0, row=0,
-            pady=20, padx=10)
-    enter_code = Entry(frame1, width=20, font=('Arial', 14))
-    enter_code.grid(column=1, row=0)
-    
-    Department = Label(frame1, text='Department', width=16).grid(column=0,
-            row=1, pady=20, padx=10)
-    enter_department = Entry(frame1, width=20, font=('Arial', 14))
-    enter_department.grid(column=1, row=1)
-    
-    Sector = Label(frame1, text='Sector', width=16).grid(column=0, row=2,
-            pady=20, padx=10)
-    enter_sector = Entry(frame1, width=20, font=('Arial', 14))
-    enter_sector.grid(column=1, row=2)
+        tkinter.messagebox.showinfo('Finish Process Mapping1','The data has been saved. Please close the window')
+        
     
     Add = Button(
-        frame1,
+        subframe,
         width=20,
         font=('Arial', 12, 'bold'),
         text='Add',
-        bg='orange',
+        bg='#f08823',
         bd=5,
-        command=agregar_datos,
+        command=add_data,
         )
     Add.grid(columnspan=2, row=5, pady=20, padx=10)
     
     file = Label(
-        frame2,
-        text='Enter file name',
-        width=25,
-        bg='gray16',
-        font=('Arial', 12, 'bold'),
-        fg='white',
+        subframe2,
+        text='Save data after adding all missing data',
+        width=40,
+        bg='#24a7b1',
+        font=('Arial', 11),
+        fg='black',
         )
     file.grid(column=0, row=0, pady=20, padx=10)
     
-    file_name = Entry(frame2, width=23, font=('Arial', 14),
-                      highlightbackground='green', highlightthickness=4)
-    file_name.grid(column=0, row=1, pady=1, padx=10)
     
     save = Button(
-        frame2,
+        subframe2,
         width=20,
         font=('Arial', 12, 'bold'),
         text='Save',
-        bg='green2',
+        bg='#bdcf30',
         bd=5,
         command=save_data,
         )
     save.grid(column=0, row=2, pady=20, padx=10)
+        
     
-    windows.mainloop()
+    window.mainloop()
     
     # Concat new data in Mapping1
 
@@ -248,167 +328,259 @@ else:
 
 #---------------Import Mapping2 data---------------------------
 
-df3 = pd.read_excel('FinancialData2021_22_Python_interface.xlsx',
+df3 = pd.read_excel('FinancialData2021_23_Python_V2.xlsx',
                     sheet_name='Mapping2', dtype=object)
 df3.head()
 
 df3['WBS / CC Description'].fillna('NA', inplace=True)
 df3['Status'].fillna('NA', inplace=True)
 df3['Fund Program'].fillna('NA', inplace=True)
-df3['Faculty Name'].fillna('NA', inplace=True)
+df3['WBS Owner Name'].fillna('NA', inplace=True)
+df3['WBS Owner-KAUST ID'].fillna('0', inplace=True)
+df3['WBS Owner Status'].fillna('NA', inplace=True)
+df3['Based on WBS Description Faculty Name'].fillna('NA', inplace=True)
+
 df3.fillna('0', inplace=True)
 df3 = df3.drop_duplicates()
 
-df3['WBS Description'] = df3['WBS Description'].values.astype('str')
+df3['WBS / CC'] = df3['WBS / CC'].values.astype('str')
 
 df3['Fund Program'] = df3['Fund Program'].values.astype('str')
 df3['Profit Center'] = df3['Profit Center'].values.astype('str')
-df3['Faculty Name'] = df3['Faculty Name'].values.astype('str')
+df3['WBS Owner Name'] = df3['WBS Owner Name'].values.astype('str')
+df3['Based on WBS Description Faculty Name'] = df3['Based on WBS Description Faculty Name'].values.astype('str')
 
 def mapping2_code(row):
     
     if row['WBS']== '0':
-       row['WBS Description'] = row['Cost Center']
+       row['WBS / CC'] = row['Cost Center']
     else:
-       row['WBS Description'] = row['WBS']
+       row['WBS / CC'] = row['WBS']
     return row   
 
 df1 = df1.apply(mapping2_code, axis=1)
 
-df1['WBS Description'] = df1['WBS Description'].values.astype('str')
+df1['WBS / CC'] = df1['WBS / CC'].values.astype('str')
 
 
-df1['Check_df3'] = df1['WBS Description'].isin(df3['WBS Description'])
+df1['Check_df3'] = df1['WBS / CC'].isin(df3['WBS / CC'])
 print(df1['Check_df3'].value_counts())
 df1['Check_df3'] = df1['Check_df3'].values.astype('str')
 
-df3 = df3.drop([
-    'Profit Center', 
-    'Based on WBS Description Faculty Name ',
-    'Name'
-    ], axis=1)
 
 df_falses2 = df1[(df1['Check_df3']=='False')]
-df_falses2= df_falses2['WBS Description'].drop_duplicates()
+df_falses2= df_falses2['WBS / CC'].drop_duplicates()
 print(df_falses2.to_markdown())
-
 
 # ----------------Enter missing data in Mapping2-------------------------------
 
 
 if 'False' in df1['Check_df3'].tolist():
     
-    windows = Tk()
-    windows.config(bg='white')
-    windows.geometry('650x400')
-    windows.resizable(0, 0)
-    windows.title('There are missing data in Mapping 2. Please enter the missing data')
+    window = Tk()
+    window.geometry('625x550')
+    window.resizable(0, 0)
+    window.title('Enter Missing Data')
     
-    (wbs_descrip1, wbs_descrip_cc1, fund_program1, status1, faculty_name1) = \
-    ([], [], [], [], [])
     
+    subframe = Frame(window, bg='#24a7b1')
+    subframe.grid(column=0, row=0, sticky='nsew')
+     
+    subframe2 = Frame(window, bg='#24a7b1')
+    subframe2.grid(column=0, row=1, sticky='nsew')
+    
+    
+    ### --- WBS / CC Input
+    
+    label00 = Label(subframe, text = 'WBS / CC', font = ('Arial Bold', 12), bg = 'white', fg = 'black').grid(column=0, row=0,
+             sticky = 'ew', padx = 5, pady = 5)
+    WBS_entry = Entry(subframe,width=20, font=('Arial', 12))
+    WBS_entry.grid(row = 0, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    ### --- WBS / CC Description Input
+    
+    label01 = Label(subframe, text = 'WBS / CC Description', font = ('Arial Bold', 12), bg = 'white', fg = 'black').grid(column=0, row=1,
+             sticky = 'ew', padx = 5, pady = 5)
+    WBS_CC_entry = Entry(subframe,width=20, font=('Arial', 12))
+    WBS_CC_entry.grid(row = 1, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    ### --- Fund Program list Input
+    
+    label02 = Label(subframe, text = 'Fund Program', font = ('Arial Bold', 12), bg = 'white', fg = 'black')
+    label02.grid(row = 2, column = 0, sticky = 'ew', padx = 5, pady = 5)
+    
+    fund_program_list_series = df3['Fund Program'].tolist()
+    fund_program_list_series = set(fund_program_list_series)
+    fund_program_list_series = sorted(fund_program_list_series)
+    fund_program_list_series.insert(0,"Select Fund Program")
+    
+    fund_program_list_var = StringVar(window)
+    fund_program_list_var.set(fund_program_list_series[0])
+    fund_program_list_entry = OptionMenu(subframe, fund_program_list_var, *fund_program_list_series)
+    fund_program_list_entry.config(width=40)
+    fund_program_list_entry.grid(row = 2, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    
+    label03 = Label(subframe, text = 'Profit Center', font = ('Arial Bold', 12), bg = 'white', fg = 'black').grid(column=0, row=3,
+             sticky = 'ew', padx = 5, pady = 5)
+    profit_center_entry = Entry(subframe,width=20, font=('Arial', 12))
+    profit_center_entry.grid(row = 3, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    
+    ### --- Based on WBS Description Faculty Name list Input
+    
+    label04 = Label(subframe, text = 'Based on WBS Description Faculty Name', font = ('Arial Bold', 12), bg = 'white', fg = 'black')
+    label04.grid(row = 4, column = 0, sticky = 'ew', padx = 5, pady = 5)
+    
+    faculty_name_list_series = df3['WBS Owner Name'].tolist()
+    faculty_name_list_series = set(faculty_name_list_series)
+    faculty_name_list_series = sorted(faculty_name_list_series)
+    faculty_name_list_series.insert(0,"Select Faculty Name")
+    
+    faculty_name_list_var = StringVar(window)
+    faculty_name_list_var.set(faculty_name_list_series[0])
+    faculty_name_list_entry = OptionMenu(subframe, faculty_name_list_var, *faculty_name_list_series)
+    faculty_name_list_entry.config(width=40)
+    faculty_name_list_entry.grid(row = 4, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    
+    ### --- Status list Input
+    
+    label05 = Label(subframe, text = 'Status', font = ('Arial Bold', 12), bg = 'white', fg = 'black')
+    label05.grid(row = 5, column = 0, sticky = 'ew', padx = 5, pady = 5)
+    
+    status_list_series = ['Select Status','Active','Departed/Adjunct','Retired inactive', 'Departed', \
+                    'On leave', 'Active-PT','On boarding','NA']
+    
+    
+    status_list_var = StringVar(window)
+    status_list_var.set(status_list_series[0])
+    status_list_entry = OptionMenu(subframe, status_list_var, *status_list_series)
+    status_list_entry.config(width=40)
+    status_list_entry.grid(row = 5, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    ### --- WBS Owner-KAUST ID Input
+    
+    label06 = Label(subframe, text = 'WBS Owner-KAUST ID', font = ('Arial Bold', 12), bg = 'white', fg = 'black').grid(column=0, row=6,
+             sticky = 'ew', padx = 5, pady = 5)
+    wbs_owner_KAUST_ID_entry = Entry(subframe,width=20, font=('Arial', 12))
+    wbs_owner_KAUST_ID_entry.grid(row = 6, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    
+    ### --- WBS Owner Status Input
+    
+    label07 = Label(subframe, text = 'WBS Owner Status', font = ('Arial Bold', 12), bg = 'white', fg = 'black')
+    label07.grid(row = 7, column = 0, sticky = 'ew', padx = 5, pady = 5)
+    
+    owner_status_list_series = ['Select Owner Status','Active','Departed/Adjunct','Retired inactive', 'Departed', \
+                    'On leave', 'Active-PT','On boarding','NA']
+    
+    
+    owner_status_list_var = StringVar(window)
+    owner_status_list_var.set(owner_status_list_series[0])
+    owner_status_list_entry = OptionMenu(subframe, owner_status_list_var, *owner_status_list_series)
+    owner_status_list_entry.config(width=40)
+    owner_status_list_entry.grid(row = 7, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    ### --- WBS Owner Name Input
+    
+    label08 = Label(subframe, text = 'Based on WBS Description Faculty Name', font = ('Arial Bold', 12), bg = 'white', fg = 'black')
+    label08.grid(row = 8, column = 0, sticky = 'ew', padx = 5, pady = 5)
+
+    name_list_var = StringVar(window)
+    name_list_var.set(faculty_name_list_series[0])
+    name_list_entry = OptionMenu(subframe, faculty_name_list_var, *faculty_name_list_series)
+    name_list_entry.config(width=40)
+    name_list_entry.grid(row = 8, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+
+    (wbs_descrip1, wbs_descrip_cc1, fund_program1, profit_center1, basedWBSdescrip_Faculty_Name1, status1, wbs_owner_KAUST_ID1, wbs_owner_status1, name1) = \
+    ([], [], [], [], [], [], [], [], [])
     
     def add_data():
-        global wbs_descrip1, wbs_descrip_cc1, fund_program1, status1, faculty_name1
+        global wbs_descrip1, wbs_descrip_cc1, fund_program1, profit_center1, basedWBSdescrip_Faculty_Name1, status1, wbs_owner_KAUST_ID1, wbs_owner_status1, name1
     
-        wbs_descrip1.append(enter_wbs_descrip.get())
-        wbs_descrip_cc1.append(enter_wbs_descrip_cc.get())
-        fund_program1.append(enter_fund_program.get())
-        status1.append(enter_status.get())
-        faculty_name1.append(enter_faculty_name.get())
+        wbs_descrip1.append(WBS_entry.get())
+        wbs_descrip_cc1.append(WBS_CC_entry.get())
+        fund_program1.append(fund_program_list_var.get())
+        profit_center1.append(profit_center_entry.get())
+        basedWBSdescrip_Faculty_Name1.append(faculty_name_list_var.get())
+        status1.append(status_list_var.get())
+        wbs_owner_KAUST_ID1.append(wbs_owner_KAUST_ID_entry.get())
+        wbs_owner_status1.append(owner_status_list_var.get())
+        name1.append(name_list_var.get())
+        
+        profit_center_list_var
     
-        enter_wbs_descrip.delete(0, END)
-        enter_wbs_descrip_cc.delete(0, END)
-        enter_fund_program.delete(0, END)
-        enter_status.delete(0, END)
-        enter_faculty_name.delete(0, END)
-    
+        WBS_entry.delete(0, END)
+        WBS_CC_entry.delete(0, END)
+        fund_program_list_var.set(fund_program_list_series[0])
+        profit_center_list_var.set(0, END)
+        faculty_name_list_var.set(faculty_name_list_series[0])
+        status_list_var.set(status_list_series[0])
+        wbs_owner_KAUST_ID_entry.delete(0, END)
+        owner_status_list_var.set(owner_status_list_series[0])
+        name_list_var.set(faculty_name_list_series[0])
     
     def save_data():
-        global wbs_descrip1, wbs_descrip_cc1, fund_program1, status1, faculty_name1
+        global wbs_descrip1, wbs_descrip_cc1, fund_program1, profit_center1, \
+                basedWBSdescrip_Faculty_Name1, status1, wbs_owner_KAUST_ID1, \
+                wbs_owner_status1, name1
     
         data = {
-            'WBS Description': wbs_descrip1,
+            'WBS / CC': wbs_descrip1,
             'WBS / CC Description': wbs_descrip_cc1,
             'Fund Program': fund_program1,
+            'Profit Center': profit_center1,
+            'Based on WBS Description Faculty Name': basedWBSdescrip_Faculty_Name1,
             'Status': status1,
-            'Faculty Name': faculty_name1,
+            'WBS Owner-KAUST ID': wbs_owner_KAUST_ID1,
+            'WBS Owner Status': wbs_owner_status1,
+            'WBS Owner Name': name1
             }
-        name_excel = str(file_name.get() + '.xlsx')
-        df = pd.DataFrame(data, columns=['WBS Description',
-                  'WBS / CC Description', 'Fund Program', 'Status',
-                  'Faculty Name'])
+        name_excel = 'new_mapping2' + '.xlsx'
+        df = pd.DataFrame(data, columns=['WBS / CC',
+                  'WBS / CC Description', 'Fund Program', 'Profit Center', 'Based on WBS Description Faculty Name', 'Status',
+                  'WBS Owner-KAUST ID', 'WBS Owner Status', 'WBS Owner Name'])
         df.to_excel(name_excel, index=False)
-        file_name.delete(0, END)
-    
-    
-    frame1 = Frame(windows, bg='gray15')
-    frame1.grid(column=0, row=0, sticky='nsew')
-    frame2 = Frame(windows, bg='gray16')
-    frame2.grid(column=1, row=0, sticky='nsew')
-    
-    WBS_Description = Label(frame1, text='WBS Description', width=16).grid(column=0, row=0,
-            pady=20, padx=10)
-    enter_wbs_descrip = Entry(frame1, width=20, font=('Arial', 14))
-    enter_wbs_descrip.grid(column=1, row=0)
-    
-    WBS_CC_Description = Label(frame1, text='WBS / CC Description', width=16).grid(column=0,
-            row=1, pady=20, padx=10)
-    enter_wbs_descrip_cc = Entry(frame1, width=20, font=('Arial', 14))
-    enter_wbs_descrip_cc.grid(column=1, row=1)
-    
-    Fund_Program = Label(frame1, text='Fund Program', width=16).grid(column=0, row=2,
-            pady=20, padx=10)
-    enter_fund_program = Entry(frame1, width=20, font=('Arial', 14))
-    enter_fund_program.grid(column=1, row=2)
-    
-    Status = Label(frame1, text='Status', width=16).grid(column=0, row=3,
-            pady=20, padx=10)
-    enter_status = Entry(frame1, width=20, font=('Arial', 14))
-    enter_status.grid(column=1, row=3)
-    
-    Faculty_Name = Label(frame1, text='Faculty Name', width=16).grid(column=0, row=4,
-            pady=20, padx=10)
-    enter_faculty_name = Entry(frame1, width=20, font=('Arial', 14))
-    enter_faculty_name.grid(column=1, row=4)
+        tkinter.messagebox.showinfo('Finish Process Mapping2','The data has been saved. Please close the window')
+        
     
     Add = Button(
-        frame1,
+        subframe,
         width=20,
         font=('Arial', 12, 'bold'),
         text='Add',
-        bg='orange',
+        bg='#f08823',
         bd=5,
         command=add_data,
         )
-    Add.grid(columnspan=2, row=5, pady=20, padx=10)
+    Add.grid(columnspan=2, row=10, pady=20, padx=10)
     
     file = Label(
-        frame2,
-        text='Enter file name',
-        width=25,
-        bg='gray16',
-        font=('Arial', 12, 'bold'),
-        fg='white',
+        subframe2,
+        text='Save data after adding all missing data',
+        width=67,
+        bg='#24a7b1',
+        font=('Arial', 11),
+        fg='black',
         )
     file.grid(column=0, row=0, pady=20, padx=10)
     
-    file_name = Entry(frame2, width=23, font=('Arial', 14),
-                      highlightbackground='green', highlightthickness=4)
-    file_name.grid(column=0, row=1, pady=1, padx=10)
     
     save = Button(
-        frame2,
+        subframe2,
         width=20,
         font=('Arial', 12, 'bold'),
         text='Save',
-        bg='green2',
+        bg='#bdcf30',
         bd=5,
         command=save_data,
         )
     save.grid(column=0, row=2, pady=20, padx=10)
+        
     
-    windows.mainloop()
+    window.mainloop()
     
     # Concat new data with Mapping2
 
@@ -416,15 +588,28 @@ if 'False' in df1['Check_df3'].tolist():
 
     df3 = pd.concat([df3, df3_new_mapping])
 
-    df1['Check_df3'] = df1['WBS Description'].isin(df3['WBS Description'])
+    df1['Check_df3'] = df1['WBS / CC'].isin(df3['WBS / CC'])
     print(df1['Check_df3'].value_counts())
 
     # Merge Main data with Mapping 1
 
-    df1 = pd.merge(df1, df3, on='WBS Description', how='left')
+    df1 = pd.merge(df1, df3, on='WBS / CC', how='left')
 
 else:
-    df1 = pd.merge(df1, df3, on='WBS Description', how='left')
+    df1 = pd.merge(df1, df3, on='WBS / CC', how='left')
+
+df1 = df1.drop([
+    'Status',
+    'Profit Center_y',
+    'Based on WBS Description Faculty Name',
+    'WBS Owner-KAUST ID'
+    ], axis=1)
+
+df1 = df1.rename(columns={
+    'WBS Owner Status': 'Status',
+    'WBS Owner Name': 'Faculty Name'
+    
+    })
 
 
 
@@ -432,7 +617,7 @@ else:
 
 
 #---------------Import B&P data-------------------------------
-df4 = pd.read_excel('FinancialData2021_22_Python_interface.xlsx',
+df4 = pd.read_excel('FinancialData2021_23_Python_V2.xlsx',
                     sheet_name='B&P_GL_Grp', dtype=object)
 df4.head()
 
@@ -460,7 +645,7 @@ df4 = df4[[
     'Account Number',
     'GL Level 1',
     'GL Level 2',
-    'Staff / Non Staff'
+    'S&B / OPEX'
     ]]
 
 
@@ -474,109 +659,153 @@ print(df_falses3.to_markdown())
 
 if 'False' in df1['Check_df4'].tolist():
     
-    windows = Tk()
-    windows.config(bg='white')
-    windows.geometry('650x350')
-    windows.resizable(0, 0)
-    windows.title('There are missing data in B&P Data. Please enter the missing data')
+    window = Tk()
+    window.geometry('440x520')
+    window.resizable(0, 0)
+    window.title('Enter Missing Data in Mapping 3')
     
-    (account_number1, gl_level1, gl_level2, staf_non_staf1) = \
-    ([], [], [], [])
     
+    subframe = Frame(window, bg='#24a7b1')
+    subframe.grid(column=0, row=0, sticky='nsew')
+     
+    subframe2 = Frame(window, bg='#24a7b1')
+    subframe2.grid(column=0, row=1, sticky='nsew')
+    
+    
+    ### --- Account Number Input
+    
+    label00 = Label(subframe, text = 'Account Number', font = ('Arial Bold', 12), bg = 'white', fg = 'black').grid(column=0, row=0,
+             sticky = 'ew', padx = 5, pady = 5)
+    account_number1_entry = Entry(subframe,width=20, font=('Arial', 12))
+    account_number1_entry.grid(row = 0, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    ### --- GL Description list Input
+    label10 = Label(subframe, text = 'GL Description', font = ('Arial Bold', 12), bg = 'white', fg = 'black').grid(column=0, row=1,
+             sticky = 'ew', padx = 5, pady = 5)
+    gl_description_entry = Entry(subframe,width=20, font=('Arial', 12))
+    gl_description_entry.grid(row = 1, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    ### --- Level 2 list Input
+    label20 = Label(subframe, text = 'Level 2', font = ('Arial Bold', 12), bg = 'white', fg = 'black').grid(column=0, row=2,
+             sticky = 'ew', padx = 5, pady = 5)
+    level2_entry = Entry(subframe,width=20, font=('Arial', 12))
+    level2_entry.grid(row = 2, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    ### --- Budget Account list Input
+    label30 = Label(subframe, text = 'Budget Account', font = ('Arial Bold', 12), bg = 'white', fg = 'black').grid(column=0, row=3,
+             sticky = 'ew', padx = 5, pady = 5)
+    budget_account_entry = Entry(subframe,width=20, font=('Arial', 12))
+    budget_account_entry.grid(row = 3, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    ### --- GL Level 2 list Input
+    label40 = Label(subframe, text = 'GL Level 2', font = ('Arial Bold', 12), bg = 'white', fg = 'black').grid(column=0, row=4,
+             sticky = 'ew', padx = 5, pady = 5)
+    gl_level2_entry = Entry(subframe,width=20, font=('Arial', 12))
+    gl_level2_entry.grid(row = 4, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    ### --- Level 1 list Input
+    label50 = Label(subframe, text = 'Level 1', font = ('Arial Bold', 12), bg = 'white', fg = 'black').grid(column=0, row=5,
+             sticky = 'ew', padx = 5, pady = 5)
+    level1_entry = Entry(subframe,width=20, font=('Arial', 12))
+    level1_entry.grid(row = 5, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    ### --- GL Level 1 list Input
+    label60 = Label(subframe, text = 'GL Level 1', font = ('Arial Bold', 12), bg = 'white', fg = 'black').grid(column=0, row=6,
+             sticky = 'ew', padx = 5, pady = 5)
+    gl_level1_entry = Entry(subframe,width=20, font=('Arial', 12))
+    gl_level1_entry.grid(row = 6, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    
+    
+    ### --- Staff / Non Staff list input
+    label70 = Label(subframe, text = 'S&B / OPEX', font = ('Arial Bold', 12), bg = 'white', fg = 'black')
+    label70.grid(row = 7, column = 0, sticky = 'ew', padx = 5, pady = 5)
+    
+    staff_non_staff_List_series = ['Select S&B / OPEX',
+        'S&B',
+        'OPEX'
+        ]
+    
+    staff_non_staff_List_var = StringVar(window)
+    staff_non_staff_List_var.set(staff_non_staff_List_series[0])
+    staff_non_staff_list_entry = OptionMenu(subframe, staff_non_staff_List_var, *staff_non_staff_List_series)
+    staff_non_staff_list_entry.config(width=40)
+    staff_non_staff_list_entry.grid(row = 7, column = 1, sticky = 'ew', padx = 5, pady = 5)
+    
+    
+    account_number1, gl_description1, level2, budget_account1, gl_level2, level1, gl_level1, staf_non_staf1 = \
+    [], [], [], [], [], [], [], []
     
     def add_data():
-        global account_number1, gl_level1, gl_level1, staf_non_staf1
+        global account_number1, gl_description1, level2, budget_account1, gl_level2, level1, gl_level1, staf_non_staf1
     
-        account_number1.append(enter_account_number.get())
-        gl_level1.append(enter_gl_level1.get())
-        gl_level2.append(enter_gl_level2.get())
-        staf_non_staf1.append(enter_staf_non_staf.get())
+        account_number1.append(account_number1_entry.get())
+        gl_description1.append(gl_description_entry.get())
+        level2.append(level2_entry.get())
+        budget_account1.append(budget_account_entry.get())
+        gl_level2.append(gl_level2_entry.get())
+        level1.append(level1_entry.get())
+        gl_level1.append(gl_level1_entry.get())
+        staf_non_staf1.append(staff_non_staff_List_var.get())
     
-        enter_account_number.delete(0, END)
-        enter_gl_level1.delete(0, END)
-        enter_gl_level2.delete(0, END)
-        enter_staf_non_staf.delete(0, END)
+        account_number1_entry.delete(0, END)
+        gl_description_entry.delete(0, END)
+        level2_entry.delete(0, END)
+        budget_account_entry.delete(0, END)
+        gl_level2_entry.delete(0, END)
+        level1.delete(0, END)
+        gl_level1.delete(0, END)
+        staff_non_staff_List_var.set(staff_non_staff_List_series[0])
     
     
     def save_data():
-        global account_number1, gl_level1, gl_level2, staf_non_staf1
+        global account_number1, gl_description1, level2, budget_account1, gl_level2, level1, gl_level1, staf_non_staf1
     
-        data = {
-            'Account Number': account_number1,
-            'GL Level 1': gl_level1,
-            'GL Level 2': gl_level2,
-            'Staff / Non Staff': staf_non_staf1
-            }
-        name_excel = str(file_name.get() + '.xlsx')
-        df = pd.DataFrame(data, columns=['Account Number',
-                  'GL Level 1', 'GL Level 2', 'Staff / Non Staff'])
+        data = {'Account Number': account_number1, 'GL Description': gl_description1,\
+                'Level 2': level2, 'Budget Account': budget_account1, 'GL Level 2': gl_level2,\
+                    'Level 1': level1, 'S&B / OPEX': staf_non_staf1}
+        name_excel = 'new_mapping3' + '.xlsx'
+        df = pd.DataFrame(data, columns=['Account Number', 'GL Description', \
+                                         'Level 2', 'Budget Account', 'GL Level 2', 'Level 1', 'S&B / OPEX'])
         df.to_excel(name_excel, index=False)
-        file_name.delete(0, END)
+        tkinter.messagebox.showinfo('Finish Process Mapping3','The data has been saved. Please close the window')
+        
     
-    
-    frame1 = Frame(windows, bg='gray15')
-    frame1.grid(column=0, row=0, sticky='nsew')
-    frame2 = Frame(windows, bg='gray16')
-    frame2.grid(column=1, row=0, sticky='nsew')
-    
-    Account_Number = Label(frame1, text='Account Number', width=16).grid(column=0, row=0,
-            pady=20, padx=10)
-    enter_account_number = Entry(frame1, width=20, font=('Arial', 14))
-    enter_account_number.grid(column=1, row=0)
-    
-    GL_Level1 = Label(frame1, text='GL Level 1', width=16).grid(column=0,
-            row=1, pady=20, padx=10)
-    enter_gl_level1 = Entry(frame1, width=20, font=('Arial', 14))
-    enter_gl_level1.grid(column=1, row=1)
-    
-    GL_Level2 = Label(frame1, text='GL Level 2', width=16).grid(column=0, row=2,
-            pady=20, padx=10)
-    enter_gl_level2 = Entry(frame1, width=20, font=('Arial', 14))
-    enter_gl_level2.grid(column=1, row=2)
-    
-    Staff_non_Staff = Label(frame1, text='Staff / Non Staff', width=16).grid(column=0, row=3,
-            pady=20, padx=10)
-    enter_staf_non_staf = Entry(frame1, width=20, font=('Arial', 14))
-    enter_staf_non_staf.grid(column=1, row=3)
-    
-
     Add = Button(
-        frame1,
+        subframe,
         width=20,
         font=('Arial', 12, 'bold'),
         text='Add',
-        bg='orange',
+        bg='#f08823',
         bd=5,
         command=add_data,
         )
-    Add.grid(columnspan=2, row=5, pady=20, padx=10)
+    Add.grid(columnspan=2, row=8, pady=20, padx=10)
     
     file = Label(
-        frame2,
-        text='Enter file name',
-        width=25,
-        bg='gray16',
-        font=('Arial', 12, 'bold'),
-        fg='white',
+        subframe2,
+        text='Save data after adding all missing data',
+        width=40,
+        bg='#24a7b1',
+        font=('Arial', 11),
+        fg='black',
         )
-    file.grid(column=0, row=0, pady=20, padx=10)
+    file.grid(column=0, row=0, pady=30, padx=35)
     
-    file_name = Entry(frame2, width=23, font=('Arial', 14),
-                      highlightbackground='green', highlightthickness=4)
-    file_name.grid(column=0, row=1, pady=1, padx=10)
     
     save = Button(
-        frame2,
+        subframe2,
         width=20,
         font=('Arial', 12, 'bold'),
         text='Save',
-        bg='green2',
+        bg='#bdcf30',
         bd=5,
         command=save_data,
         )
     save.grid(column=0, row=2, pady=20, padx=10)
+        
     
-    windows.mainloop()
+    window.mainloop()
     
     # Concat new data with B&P Data
 
@@ -584,7 +813,7 @@ if 'False' in df1['Check_df4'].tolist():
 
     df4 = pd.concat([df4, df4_new_mapping])
 
-    df1['Check_df4'] = df1['Account Number'].isin(df4['Acoount Number'])
+    df1['Check_df4'] = df1['Account Number'].isin(df4['Account Number'])
     print(df1['Check_df4'].value_counts())
 
     # Merge Main data with Mapping 1
@@ -602,23 +831,22 @@ FinancialData = df1.drop([
     'Code',
     'Check',
     'Check_df3', 
-    'WBS Description',
-    'Check_df4'
+    'WBS / CC',
+    'Check_df4',
+    'Posting period'
     ], axis=1)
 
 # Rename Columns
 
 FinancialData = FinancialData.rename(columns={
     'Amount': 'Amount USD',
-    'WBS / CC Description': 'WBS Description',
-    'Staff / Non Staff': 'S&B/OPEX',
+    'Profit Center_x': 'Profit Center'
     })
 
 # Change the columns order
 
 FinancialData = FinancialData[[
     'Ledger',
-    'Posting period',
     'Posting Date',
     'Cost Center',
     'Profit Center',
@@ -628,67 +856,28 @@ FinancialData = FinancialData[[
     'Amount USD',
     'Department',
     'Sector',
-    'WBS Description',
+    'WBS / CC Description',
     'Fund Program',
-    'S&B/OPEX',
+    'S&B / OPEX',
     'GL Level 1',
     'GL Level 2',
     'Faculty Name',
-    'Status'
+    'Status',
+    'Purchasing document',
+    'Vendor',
     ]]
+
+FinancialData['Sector'].fillna('0', inplace=True)
+
+# Remove rows when sector is Division & Faculty
+FinancialData = FinancialData.loc[FinancialData['Sector'] != 'Division & Faculty', :]
+FinancialData = FinancialData.loc[FinancialData['Sector'] != 'Provost', :]
+FinancialData = FinancialData.loc[FinancialData['Sector'] != 'VPAA', :]
+FinancialData = FinancialData.loc[FinancialData['Sector'] != '0', :]
+
 
 # Reeplace values
 
-FinancialData['S&B/OPEX'] = FinancialData['S&B/OPEX'
-        ].replace(['Non Staff Cost'], 'OPEX')
-
-FinancialData['S&B/OPEX'] = FinancialData['S&B/OPEX'
-        ].replace(['Staff Cost'], 'S&B')
-FinancialData['Department'] = FinancialData['Department'].replace(['KRO'
-        ], 'Research Operations')
 FinancialData['Department'] = FinancialData['Department'
-        ].replace(['RC VCC'], 'RC Visual Computing')
-
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['Central Workshop Core Lab'], 'Central Workshop')
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['Analytical Chemistry Core Lab'],
-                  'Analytical Chemistry')
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['Animal Resources Facility Core Lab'],
-                  'Animal Resources Facility')
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['Bioscience Core Lab'], 'Bioscience')
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['Coastal & Marine Resources Core Lab'],
-                  'Coastal & Marine Resources')
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['Core Labs Operation & Support'],
-                  'Operation & Support')
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['Greenhouse Core Lab'], 'Greenhouse')
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['Imaging & Characterization Core Lab'],
-                  'Imaging & Characterization')
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['Nanofabrication Core Lab'], 'Nanofabrication')
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['New Energy Oasis Facility Core Lab'],
-                  'New Energy Oasis Facility')
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['Radiation Labelling Facility Core Lab'],
-                  'Radiation Labelling Facility')
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['Supercomputing Core Lab'], 'Supercomputing')
-FinancialData['Department'] = FinancialData['Department'
-        ].replace(['Visualization Core Lab'], 'Visualization')
-
-
-FinancialData['Fund Program'] = FinancialData['Fund Program'
-        ].replace(['Strategic Partnership'], 'Support to asepc')
-
- # Export Data in Excel
- 
-FinancialData.to_excel('FinancialDataPython_Sept_interface_v2.xlsx', index = False)
-
+        ].replace(['CLRI Research Park'], 'Research Park')
 
